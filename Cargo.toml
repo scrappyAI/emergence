@@ -1,0 +1,51 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/emergence-physics",
+    "crates/emergence-nervous-system", 
+    "crates/emergence-memory",
+    "crates/emergence-runtime",
+]
+
+[workspace.dependencies]
+# Core async runtime
+tokio = { version = "1.36", features = ["full"] }
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.9"
+serde_json = "1.0"
+
+# Async traits
+async-trait = "0.1"
+futures = "0.3"
+
+# Time and IDs
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.7", features = ["v4", "serde"] }
+
+# Cryptography
+blake3 = { version = "1.5", features = ["serde"] }
+
+# Numerical computation with serde support
+ordered-float = { version = "4.2", features = ["serde"] }
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Storage backends
+sled = "0.34"
+sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "sqlite", "uuid", "chrono"] }
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+repository = "https://github.com/YOUR_USERNAME/emergence"
+description = "Living agent substrate for conscious human-AI collaboration"
+authors = ["EMERGENCE Contributors"]
+keywords = ["living-agents", "emergent-intelligence", "rust", "schema-driven"]
+categories = ["development-tools", "science"]
