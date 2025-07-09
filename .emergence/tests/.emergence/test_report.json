@@ -1,0 +1,137 @@
+{
+  "summary": {
+    "total_tests": 10,
+    "passed_tests": 10,
+    "failed_tests": 0,
+    "success_rate": 1.0,
+    "total_execution_time": 0.00015600000000000002
+  },
+  "test_results": [
+    {
+      "test_name": "test_behavior_structure",
+      "passed": true,
+      "message": "Behavior structure is valid",
+      "execution_time": 8.9e-05,
+      "details": {
+        "phases_count": 5
+      }
+    },
+    {
+      "test_name": "test_capability_structures",
+      "passed": true,
+      "message": "Capability structure validation: 2/2 passed",
+      "execution_time": 1.8e-05,
+      "details": {
+        "capability_results": {
+          "test-generation": {
+            "passed": true,
+            "message": "test-generation structure is valid"
+          },
+          "test-optimization": {
+            "passed": true,
+            "message": "test-optimization structure is valid"
+          }
+        }
+      }
+    },
+    {
+      "test_name": "test_constraints_and_ethics",
+      "passed": true,
+      "message": "Found constraints in 5 schemas",
+      "execution_time": 5e-06,
+      "details": {
+        "schemas_with_constraints": [
+          "essences_tester-essence",
+          "capabilities_test-generation",
+          "capabilities_test-optimization",
+          "behaviors_autonomous-testing",
+          "physics_testing-environment"
+        ]
+      }
+    },
+    {
+      "test_name": "test_emergence_potentials",
+      "passed": true,
+      "message": "Found 9 emergence potentials",
+      "execution_time": 1.2e-05,
+      "details": {
+        "emergence_potentials": [
+          "capabilities_test-generation.adaptive_testing",
+          "capabilities_test-generation.predictive_testing",
+          "capabilities_test-generation.collaborative_testing",
+          "capabilities_test-optimization.self_healing_tests",
+          "capabilities_test-optimization.predictive_optimization",
+          "capabilities_test-optimization.adaptive_test_scheduling",
+          "behaviors_autonomous-testing.self_improving_tests",
+          "behaviors_autonomous-testing.predictive_testing",
+          "behaviors_autonomous-testing.collaborative_testing"
+        ]
+      }
+    },
+    {
+      "test_name": "test_energy_dynamics",
+      "passed": true,
+      "message": "Energy dynamics are properly configured",
+      "execution_time": 5e-06,
+      "details": {
+        "energy_sources_count": 4,
+        "energy_drains_count": 3,
+        "physics_energy_configured": true
+      }
+    },
+    {
+      "test_name": "test_learning_mechanisms",
+      "passed": true,
+      "message": "Found learning mechanisms in 1 schemas",
+      "execution_time": 6e-06,
+      "details": {
+        "schemas_with_learning": [
+          "essences_tester-essence"
+        ]
+      }
+    },
+    {
+      "test_name": "test_physics_structure",
+      "passed": true,
+      "message": "Physics structure is valid",
+      "execution_time": 7e-06,
+      "details": {
+        "forces_count": 4
+      }
+    },
+    {
+      "test_name": "test_schema_consistency",
+      "passed": true,
+      "message": "Schemas are consistent",
+      "execution_time": 4e-06,
+      "details": {
+        "capability_schemas": 2
+      }
+    },
+    {
+      "test_name": "test_schema_loading",
+      "passed": true,
+      "message": "Successfully loaded 5 schemas",
+      "execution_time": 4e-06,
+      "details": {
+        "loaded_schemas": [
+          "essences_tester-essence",
+          "capabilities_test-generation",
+          "capabilities_test-optimization",
+          "behaviors_autonomous-testing",
+          "physics_testing-environment"
+        ]
+      }
+    },
+    {
+      "test_name": "test_tester_essence_structure",
+      "passed": true,
+      "message": "Tester essence structure is valid",
+      "execution_time": 6e-06,
+      "details": {
+        "personality_traits": 6
+      }
+    }
+  ],
+  "timestamp": "2025-07-08T05:48:30.446544"
+}

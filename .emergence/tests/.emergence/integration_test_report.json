@@ -1,0 +1,118 @@
+{
+  "summary": {
+    "total_tests": 8,
+    "passed_tests": 7,
+    "failed_tests": 1,
+    "success_rate": 0.875,
+    "total_execution_time": 0.000129
+  },
+  "test_results": [
+    {
+      "test_name": "test_behavior_physics_integration",
+      "passed": true,
+      "message": "Behaviors and physics are properly integrated",
+      "execution_time": 1.8e-05,
+      "details": {
+        "behavior_phases": 5,
+        "physics_constraints": 3
+      }
+    },
+    {
+      "test_name": "test_complete_system_architecture",
+      "passed": true,
+      "message": "Complete system architecture is valid",
+      "execution_time": 1.9e-05,
+      "details": {
+        "components_count": 5,
+        "validation_configured": true
+      }
+    },
+    {
+      "test_name": "test_constraints_integration",
+      "passed": true,
+      "message": "Constraints are properly integrated across 5 components",
+      "execution_time": 6.2e-05,
+      "details": {
+        "components_with_constraints": [
+          "essences_tester-essence",
+          "capabilities_test-generation",
+          "capabilities_test-optimization",
+          "behaviors_autonomous-testing",
+          "physics_testing-environment"
+        ],
+        "components_with_ethics": [
+          "essences_tester-essence",
+          "capabilities_test-generation",
+          "capabilities_test-optimization",
+          "behaviors_autonomous-testing"
+        ]
+      }
+    },
+    {
+      "test_name": "test_emergence_integration",
+      "passed": true,
+      "message": "Found 9 emergence potentials across 4 types",
+      "execution_time": 1.7e-05,
+      "details": {
+        "emergence_potentials": [
+          "capabilities_test-generation.adaptive_testing",
+          "capabilities_test-generation.predictive_testing",
+          "capabilities_test-generation.collaborative_testing",
+          "capabilities_test-optimization.self_healing_tests",
+          "capabilities_test-optimization.predictive_optimization",
+          "capabilities_test-optimization.adaptive_test_scheduling",
+          "behaviors_autonomous-testing.self_improving_tests",
+          "behaviors_autonomous-testing.predictive_testing",
+          "behaviors_autonomous-testing.collaborative_testing"
+        ],
+        "emergence_types": [
+          "collaborative",
+          "predictive",
+          "self_improving",
+          "adaptive"
+        ]
+      }
+    },
+    {
+      "test_name": "test_energy_dynamics_integration",
+      "passed": true,
+      "message": "Energy dynamics are properly integrated",
+      "execution_time": 4e-06,
+      "details": {
+        "essence_sources": 4,
+        "essence_drains": 3,
+        "physics_sources": 5,
+        "physics_drains": 5
+      }
+    },
+    {
+      "test_name": "test_essence_capability_integration",
+      "passed": false,
+      "message": "Essence missing code_analysis capability",
+      "execution_time": 3e-06,
+      "details": {}
+    },
+    {
+      "test_name": "test_learning_integration",
+      "passed": true,
+      "message": "Learning mechanisms are properly integrated",
+      "execution_time": 2e-06,
+      "details": {
+        "essence_learning": true,
+        "generation_learning": 3,
+        "optimization_learning": 3
+      }
+    },
+    {
+      "test_name": "test_validation_integration",
+      "passed": true,
+      "message": "Validation is properly integrated with the system",
+      "execution_time": 4e-06,
+      "details": {
+        "validation_dimensions": 4,
+        "validation_tests": 4
+      }
+    }
+  ],
+  "timestamp": "2025-07-08T05:48:30.755353"
+}

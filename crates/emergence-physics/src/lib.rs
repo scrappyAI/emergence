@@ -370,6 +370,12 @@ impl PhysicsEngine {
         })
     }
     
+    /// Allocate energy to an entity from the system (for initialization/testing)
+    pub async fn allocate_energy_to_entity(&self, entity: EntityId, amount: OrderedFloat<f64>) -> Result<()> {
+        let mut energy_laws = self.energy_laws.write().await;
+        energy_laws.allocate_energy(entity, amount).await.map_err(|e| anyhow::anyhow!(e))
+    }
+    
     /// Get current physics engine state
     pub async fn get_engine_state(&self) -> Result<PhysicsEngineState> {
         let energy_state = {

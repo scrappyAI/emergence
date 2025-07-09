@@ -1,0 +1,41 @@
+{
+  "overall_summary": {
+    "timestamp": "2025-07-08T05:48:30.811673",
+    "total_test_suites": 4,
+    "passed_test_suites": 1,
+    "failed_test_suites": 3,
+    "suite_success_rate": 0.25,
+    "total_individual_tests": 0,
+    "total_passed_tests": 0,
+    "total_failed_tests": 0,
+    "test_success_rate": 0,
+    "total_execution_time": 0.0
+  },
+  "test_suite_results": {
+    "test_suite.py": {
+      "status": "passed",
+      "return_code": 0,
+      "stdout": "EMERGENCE Autonomous Testing System - Comprehensive Test Suite\n============================================================\n\nTest Summary:\nTotal Tests: 10\nPassed: 10\nFailed: 0\nSuccess Rate: 100.00%\nTotal Execution Time: 0.00s\n\nDetailed Results:\n\u2713 PASS: test_behavior_structure - Behavior structure is valid\n\u2713 PASS: test_capability_structures - Capability structure validation: 2/2 passed\n\u2713 PASS: test_constraints_and_ethics - Found constraints in 5 schemas\n\u2713 PASS: test_emergence_potentials - Found 9 emergence potentials\n\u2713 PASS: test_energy_dynamics - Energy dynamics are properly configured\n\u2713 PASS: test_learning_mechanisms - Found learning mechanisms in 1 schemas\n\u2713 PASS: test_physics_structure - Physics structure is valid\n\u2713 PASS: test_schema_consistency - Schemas are consistent\n\u2713 PASS: test_schema_loading - Successfully loaded 5 schemas\n\u2713 PASS: test_tester_essence_structure - Tester essence structure is valid\n\nDetailed report saved to: .emergence/test_report.json\n\n\u2705 All tests passed!\n",
+      "stderr": "INFO:__main__:Loading EMERGENCE schemas...\nINFO:__main__:Loaded schema: essences_tester-essence\nINFO:__main__:Loaded schema: capabilities_test-generation\nINFO:__main__:Loaded schema: capabilities_test-optimization\nINFO:__main__:Loaded schema: behaviors_autonomous-testing\nINFO:__main__:Loaded schema: physics_testing-environment\nINFO:__main__:Starting comprehensive EMERGENCE test suite...\nINFO:__main__:PASSED: test_behavior_structure - Behavior structure is valid\nINFO:__main__:PASSED: test_capability_structures - Capability structure validation: 2/2 passed\nINFO:__main__:PASSED: test_constraints_and_ethics - Found constraints in 5 schemas\nINFO:__main__:PASSED: test_emergence_potentials - Found 9 emergence potentials\nINFO:__main__:PASSED: test_energy_dynamics - Energy dynamics are properly configured\nINFO:__main__:PASSED: test_learning_mechanisms - Found learning mechanisms in 1 schemas\nINFO:__main__:PASSED: test_physics_structure - Physics structure is valid\nINFO:__main__:PASSED: test_schema_consistency - Schemas are consistent\nINFO:__main__:PASSED: test_schema_loading - Successfully loaded 5 schemas\nINFO:__main__:PASSED: test_tester_essence_structure - Tester essence structure is valid\n"
+    },
+    "test_validation.py": {
+      "status": "failed",
+      "return_code": 1,
+      "stdout": "EMERGENCE Validation Test Suite\n========================================\n\nValidation Test Results:\nTotal Tests: 6\nPassed: 0\nFailed: 6\nSuccess Rate: 0.00%\n\nDetailed Results:\n\u2717 FAIL: success_criteria - No validation schema available\n\u2717 FAIL: validation_dimensions - No validation schema available\n\u2717 FAIL: validation_frequency - No validation schema available\n\u2717 FAIL: validation_reporting - No validation schema available\n\u2717 FAIL: validation_schema_loading - Validation schema could not be loaded\n\u2717 FAIL: validation_tests - No validation schema available\n\nValidation report saved to: .emergence/validation_test_report.json\n",
+      "stderr": ""
+    },
+    "test_integration.py": {
+      "status": "failed",
+      "return_code": 1,
+      "stdout": "EMERGENCE Integration Test Suite\n========================================\n\nIntegration Test Summary:\nTotal Tests: 8\nPassed: 7\nFailed: 1\nSuccess Rate: 87.50%\nTotal Execution Time: 0.00s\n\nDetailed Integration Results:\n\u2713 PASS: test_behavior_physics_integration - Behaviors and physics are properly integrated\n\u2713 PASS: test_complete_system_architecture - Complete system architecture is valid\n\u2713 PASS: test_constraints_integration - Constraints are properly integrated across 5 components\n\u2713 PASS: test_emergence_integration - Found 9 emergence potentials across 4 types\n\u2713 PASS: test_energy_dynamics_integration - Energy dynamics are properly integrated\n\u2717 FAIL: test_essence_capability_integration - Essence missing code_analysis capability\n\u2713 PASS: test_learning_integration - Learning mechanisms are properly integrated\n\u2713 PASS: test_validation_integration - Validation is properly integrated with the system\n\nIntegration report saved to: .emergence/integration_test_report.json\n\n\u274c Some integration tests failed!\n",
+      "stderr": "INFO:__main__:Loading EMERGENCE components for integration testing...\nINFO:__main__:Loaded schema: essences_tester-essence\nINFO:__main__:Loaded schema: capabilities_test-generation\nINFO:__main__:Loaded schema: capabilities_test-optimization\nINFO:__main__:Loaded schema: behaviors_autonomous-testing\nINFO:__main__:Loaded schema: physics_testing-environment\nINFO:__main__:Loaded validation schema\nINFO:__main__:Starting EMERGENCE integration tests...\nINFO:__main__:PASSED: test_behavior_physics_integration - Behaviors and physics are properly integrated\nINFO:__main__:PASSED: test_complete_system_architecture - Complete system architecture is valid\nINFO:__main__:PASSED: test_constraints_integration - Constraints are properly integrated across 5 components\nINFO:__main__:PASSED: test_emergence_integration - Found 9 emergence potentials across 4 types\nINFO:__main__:PASSED: test_energy_dynamics_integration - Energy dynamics are properly integrated\nINFO:__main__:FAILED: test_essence_capability_integration - Essence missing code_analysis capability\nINFO:__main__:PASSED: test_learning_integration - Learning mechanisms are properly integrated\nINFO:__main__:PASSED: test_validation_integration - Validation is properly integrated with the system\n"
+    },
+    "test_performance.py": {
+      "status": "failed",
+      "return_code": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"/home/vscode/emergence/.emergence/tests/../tests/test_performance.py\", line 14, in <module>\n    import psutil\nModuleNotFoundError: No module named 'psutil'\n"
+    }
+  },
+  "detailed_reports": {}
+}

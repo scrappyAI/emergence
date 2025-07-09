@@ -1,0 +1,49 @@
+{
+  "summary": {
+    "total_tests": 6,
+    "passed_tests": 0,
+    "failed_tests": 6,
+    "success_rate": 0.0
+  },
+  "results": [
+    {
+      "test_name": "success_criteria",
+      "passed": false,
+      "message": "No validation schema available",
+      "details": {}
+    },
+    {
+      "test_name": "validation_dimensions",
+      "passed": false,
+      "message": "No validation schema available",
+      "details": {}
+    },
+    {
+      "test_name": "validation_frequency",
+      "passed": false,
+      "message": "No validation schema available",
+      "details": {}
+    },
+    {
+      "test_name": "validation_reporting",
+      "passed": false,
+      "message": "No validation schema available",
+      "details": {}
+    },
+    {
+      "test_name": "validation_schema_loading",
+      "passed": false,
+      "message": "Validation schema could not be loaded",
+      "details": {
+        "error": "Schema file not found or invalid"
+      }
+    },
+    {
+      "test_name": "validation_tests",
+      "passed": false,
+      "message": "No validation schema available",
+      "details": {}
+    }
+  ],
+  "timestamp": "2025-07-08T05:48:30.521474"
+}

@@ -116,7 +116,7 @@ impl EmergenceTerminal {
             "status" | "list" => self.handle_status().await,
             "energy" => self.handle_energy().await,
             "physics" => self.handle_physics().await,
-            "help" => self.handle_help(),
+            "help" => Ok(self.handle_help()),
             _ => {
                 // Try to communicate with an agent
                 if let Some(agent_name) = self.extract_agent_name(input) {
@@ -283,20 +283,16 @@ impl EmergenceTerminal {
     
     /// Handle agent communication
     async fn handle_agent_communication(&mut self, agent_name: &str, message: &str) -> Result<()> {
-        if let Some(agent) = self.active_agents.iter_mut().find(|a| a.name.contains(agent_name)) {
-            println!("📡 Transmitting to {}...", agent.name);
-            
-            // Simulate thinking delay based on personality
-            let thinking_time = (agent.personality.curiosity * 1000.0) as u64;
+        if let Some(idx) = self.active_agents.iter().position(|a| a.name.contains(agent_name)) {
+            let agent_name = self.active_agents[idx].name.clone();
+            let personality = self.active_agents[idx].personality.clone();
+            println!("📡 Transmitting to {}...", agent_name);
+            let thinking_time = (personality.curiosity * 1000.0) as u64;
             sleep(Duration::from_millis(thinking_time.min(2000))).await;
-            
-            let response = self.generate_agent_response(agent, message);
-            println!("💭 {}: \"{}\"", agent.name, response);
-            
-            // Update agent state based on interaction
-            agent.state = AgentState::Focused;
-            agent.energy = (agent.energy + 0.05).min(1.0); // Slight energy boost from interaction
-            
+            let response = self.generate_agent_response(&self.active_agents[idx], message);
+            println!("💭 {}: \"{}\"", agent_name, response);
+            self.active_agents[idx].state = AgentState::Focused;
+            self.active_agents[idx].energy = (self.active_agents[idx].energy + 0.05).min(1.0);
         } else {
             println!("❓ No active entity found matching '{}'", agent_name);
             if !self.active_agents.is_empty() {
@@ -307,7 +303,6 @@ impl EmergenceTerminal {
                              .join(", "));
             }
         }
-        
         Ok(())
     }
     

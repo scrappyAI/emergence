@@ -5,6 +5,7 @@ members = [
     "crates/emergence-nervous-system", 
     "crates/emergence-memory",
     "crates/emergence-runtime",
+    "crates/emergence-models",
 ]
 
 [workspace.dependencies]
@@ -39,6 +40,24 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 # Storage backends
 sled = "0.34"
 sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "sqlite", "uuid", "chrono"] }
+
+# Machine Learning
+tch = "0.13"
+tokenizers = "0.15"
+safetensors = "0.4"
+
+# Async streams
+async-stream = "0.3"
+
+# HTTP for model downloading
+reqwest = { version = "0.11", features = ["json"] }
+
+# Memory management
+dashmap = "5.5"
+
+# Configuration
+config = "0.14"
+num_cpus = "1.16"
 
 [workspace.package]
 version = "0.1.0"

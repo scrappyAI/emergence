@@ -20,7 +20,7 @@ serde = { workspace = true, features = ["derive"] }
 serde_yaml = "0.9"
 
 # Event broadcasting
-tokio-stream = "0.1"
+tokio-stream = { version = "0.1", features = ["sync"] }
 futures = { workspace = true }
 
 # Time handling
@@ -29,3 +29,6 @@ uuid = { workspace = true, features = ["v4", "serde"] }
 
 # Tracing
 tracing = { workspace = true }
+
+# Numerical computations
+ordered-float = { workspace = true }
