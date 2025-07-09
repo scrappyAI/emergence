@@ -116,7 +116,7 @@ impl EmergenceTerminal {
             "status" | "list" => self.handle_status().await,
             "energy" => self.handle_energy().await,
             "physics" => self.handle_physics().await,
-            "help" => self.handle_help(),
+            "help" => Ok(self.handle_help()),
             _ => {
                 // Try to communicate with an agent
                 if let Some(agent_name) = self.extract_agent_name(input) {
@@ -290,7 +290,7 @@ impl EmergenceTerminal {
             let thinking_time = (agent.personality.curiosity * 1000.0) as u64;
             sleep(Duration::from_millis(thinking_time.min(2000))).await;
             
-            let response = self.generate_agent_response(agent, message);
+            let response = Self::generate_agent_response(agent, message);
             println!("💭 {}: \"{}\"", agent.name, response);
             
             // Update agent state based on interaction
@@ -386,7 +386,7 @@ impl EmergenceTerminal {
         println!("]");
     }
     
-    fn generate_agent_response(&self, agent: &LivingAgent, message: &str) -> String {
+    fn generate_agent_response(agent: &LivingAgent, message: &str) -> String {
         let lower_message = message.to_lowercase();
         
         if lower_message.contains("pattern") || lower_message.contains("see") {
