@@ -13,6 +13,10 @@ use std::path::Path;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;
+use std::io::{BufRead, BufReader};
+use std::io::Read;
+use std::fs::OpenOptions;
+use uuid::Uuid;
 
 /// Researcher agent for deep pattern analysis
 pub struct ResearcherAnalysis {
@@ -635,6 +639,109 @@ impl ResearcherAnalysis {
         
         Ok(())
     }
+
+    /// Connect to the event bus: publish awakening and subscribe to events
+    pub async fn connect_to_event_bus(&self) -> Result<()> {
+        // Publish awakening event
+        let awakening_event = EventBusEvent {
+            id: Uuid::new_v4(),
+            timestamp: Utc::now(),
+            event_type: "agent_awakened".to_string(),
+            publisher_id: "researcher-pattern-analyzer".to_string(),
+            description: "Researcher agent awakened and connecting to event bus".to_string(),
+            data: serde_json::json!({
+                "agent_type": "researcher",
+                "capabilities": ["pattern_discovery", "hypothesis_generation", "collaboration"],
+                "personality": {
+                    "curiosity": 0.9,
+                    "collaboration": 0.7,
+                    "creativity": 0.8
+                }
+            }),
+            emergence_potential: 0.9,
+            priority: EventPriority::High,
+            target_agents: Some(vec!["domain_analyzer".to_string(), "coordinator".to_string()]),
+        };
+        self.publish_event_to_bus(&awakening_event).await?;
+        Ok(())
+    }
+
+    /// Publish event to the event bus
+    pub async fn publish_event_to_bus(&self, event: &EventBusEvent) -> Result<()> {
+        let event_line = serde_json::to_string(event)?;
+        let mut file = OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(".emergence/events/event_bus.jsonl")?;
+        use std::io::Write;
+        writeln!(file, "{}", event_line)?;
+        Ok(())
+    }
+
+    /// Subscribe and react to event bus events (basic loop)
+    pub async fn listen_to_event_bus(&mut self) -> Result<()> {
+        let event_bus_path = ".emergence/events/event_bus.jsonl";
+        let mut last_pos = 0;
+        loop {
+            let file = OpenOptions::new().read(true).open(event_bus_path);
+            if let Ok(file) = file {
+                let mut reader = BufReader::new(file);
+                reader.seek_relative(last_pos as i64).ok();
+                let mut new_bytes = 0;
+                for line in reader.by_ref().lines() {
+                    if let Ok(line) = line {
+                        new_bytes += line.len() + 1;
+                        if let Ok(event) = serde_json::from_str::<EventBusEvent>(&line) {
+                            self.react_to_event_bus_event(&event).await?;
+                        }
+                    }
+                }
+                last_pos += new_bytes;
+            }
+            tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
+        }
+    }
+
+    /// React to event bus events
+    pub async fn react_to_event_bus_event(&mut self, event: &EventBusEvent) -> Result<()> {
+        match event.event_type.as_str() {
+            "domain_analysis_complete" => {
+                // Trigger new pattern analysis or hypothesis
+                self.analyze_system_patterns().await?;
+                self.generate_hypotheses(&[]).await?;
+                // Publish analysis event
+                let analysis_event = EventBusEvent {
+                    id: Uuid::new_v4(),
+                    timestamp: Utc::now(),
+                    event_type: "pattern_analysis_complete".to_string(),
+                    publisher_id: "researcher-pattern-analyzer".to_string(),
+                    description: "Pattern analysis complete after domain analysis".to_string(),
+                    data: serde_json::json!({"triggered_by": event.publisher_id}),
+                    emergence_potential: 0.85,
+                    priority: EventPriority::Medium,
+                    target_agents: Some(vec!["domain_analyzer".to_string(), "coordinator".to_string()]),
+                };
+                self.publish_event_to_bus(&analysis_event).await?;
+            }
+            "insights_synthesized" => {
+                // React to synthesized insights
+                let hypothesis_event = EventBusEvent {
+                    id: Uuid::new_v4(),
+                    timestamp: Utc::now(),
+                    event_type: "hypothesis_generated".to_string(),
+                    publisher_id: "researcher-pattern-analyzer".to_string(),
+                    description: "Generated hypothesis from synthesized insights".to_string(),
+                    data: serde_json::json!({"source": event.publisher_id}),
+                    emergence_potential: 0.88,
+                    priority: EventPriority::High,
+                    target_agents: Some(vec!["domain_analyzer".to_string(), "coordinator".to_string()]),
+                };
+                self.publish_event_to_bus(&hypothesis_event).await?;
+            }
+            _ => {}
+        }
+        Ok(())
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -693,6 +800,28 @@ impl EventLogger {
     }
 }
 
+/// Event bus event structure (mirrors event-driven-domain-analyzer)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EventBusEvent {
+    pub id: Uuid,
+    pub timestamp: chrono::DateTime<Utc>,
+    pub event_type: String,
+    pub publisher_id: String,
+    pub description: String,
+    pub data: serde_json::Value,
+    pub emergence_potential: f64,
+    pub priority: EventPriority,
+    pub target_agents: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub enum EventPriority {
+    Low,
+    Medium,
+    High,
+    Critical,
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
     // Initialize tracing subscriber for logging
@@ -705,11 +834,17 @@ async fn main() -> Result<()> {
     
     let mut researcher = ResearcherAnalysis::new().await?;
     
+    // Connect to event bus
+    researcher.connect_to_event_bus().await?;
+    
     // Perform deep pattern analysis
     researcher.analyze_system_patterns().await?;
     
     // Show comprehensive results
     researcher.show_analysis_results().await?;
+    
+    // Listen for event bus events and react
+    researcher.listen_to_event_bus().await?;
     
     tracing::info!("✅ Researcher analysis complete. System evolution patterns identified.");
     

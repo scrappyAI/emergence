@@ -82,6 +82,14 @@ path = "src/bin/event-reactor.rs"
 name = "domain-analyzer"
 path = "src/bin/domain_analyzer.rs"
 
+[[bin]]
+name = "emergence-event-bus"
+path = "src/bin/emergence-event-bus.rs"
+
+[[bin]]
+name = "event-driven-domain-analyzer"
+path = "src/bin/event-driven-domain-analyzer.rs"
+
 [[example]]
 name = "debugger-llm-tool"
 path = "examples/debugger-llm-tool.rs"
