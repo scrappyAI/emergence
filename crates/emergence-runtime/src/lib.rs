@@ -259,6 +259,8 @@ impl AgentProcessor {
     }
 }
 
+pub mod debugger;
+
 pub struct ExecutionEngine {
     pub physics: Arc<PhysicsEngine>,
     pub nervous_system: NervousSystem,

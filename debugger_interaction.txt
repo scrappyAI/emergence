@@ -1,0 +1,8 @@
+awaken debugger with precision=0.95 collaboration=0.8 creativity=0.6
+status
+help
+diagnose
+optimize
+strategies
+reflect
+exit 

@@ -31,6 +31,10 @@ uuid = { workspace = true, features = ["v4", "serde"] }
 
 # Tracing
 tracing = { workspace = true }
+tracing-subscriber = { workspace = true, features = ["env-filter"] }
+
+# File system monitoring
+notify = "6.1"
 
 # Numerical computations
 ordered-float = { workspace = true }
@@ -42,3 +46,15 @@ path = "src/bin/emergence-terminal.rs"
 [[bin]]
 name = "debugger-agent"
 path = "src/bin/debugger-agent.rs"
+
+[[bin]]
+name = "autonomous-debugger"
+path = "src/bin/autonomous-debugger.rs"
+
+[[bin]]
+name = "collaborative-intelligence"
+path = "src/bin/collaborative-intelligence.rs"
+
+[[example]]
+name = "debugger-llm-tool"
+path = "examples/debugger-llm-tool.rs"
