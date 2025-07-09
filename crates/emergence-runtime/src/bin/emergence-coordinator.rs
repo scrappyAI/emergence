@@ -16,6 +16,9 @@ use tokio::sync::RwLock;
 use tracing::info;
 use uuid::Uuid;
 
+use std::io::{Write, BufReader, BufRead, Read};
+use std::fs::OpenOptions;
+
 /// Coordinator agent for emergent orchestration
 pub struct EmergenceCoordinator {
     coordinator: LivingAgent,
@@ -425,11 +428,46 @@ impl EmergenceCoordinator {
         // Announce awakening
         self.announce_awakening().await?;
         
+        // Connect to event bus
+        self.connect_to_event_bus().await?;
+        
         // Orchestrate emergence
         self.orchestrate_emergence().await?;
         
         info!("✅ Coordinator agent orchestration complete");
+        
+        // Listen for events from the event bus
+        info!("🔄 Listening for events from other agents...");
+        self.listen_to_event_bus().await?;
+        
         Ok(())
+    }
+
+    /// Listen to events from the event bus
+    async fn listen_to_event_bus(&mut self) -> Result<()> {
+        let event_bus_path = ".emergence/events/event_bus.jsonl";
+        let mut last_pos = 0;
+        
+        loop {
+            let file = OpenOptions::new().read(true).open(event_bus_path);
+            if let Ok(file) = file {
+                let mut reader = BufReader::new(file);
+                reader.seek_relative(last_pos as i64).ok();
+                let mut new_bytes = 0;
+                
+                for line in reader.by_ref().lines() {
+                    if let Ok(line) = line {
+                        new_bytes += line.len() + 1;
+                        if let Ok(event) = serde_json::from_str::<SystemEvent>(&line) {
+                            self.react_to_event(&event).await?;
+                        }
+                    }
+                }
+                last_pos += new_bytes;
+            }
+            
+            tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
+        }
     }
     
     /// Announce coordinator awakening
@@ -439,6 +477,283 @@ impl EmergenceCoordinator {
         info!("🎪 Specializations: [pattern_recognition, coordination_enhancement, emergence_facilitation]");
         Ok(())
     }
+
+    /// Connect to the event bus and announce awakening
+    pub async fn connect_to_event_bus(&mut self) -> Result<()> {
+        info!("🔗 Connecting coordinator to event bus...");
+        
+        // Publish agent awakening event
+        let awakening_event = SystemEvent {
+            id: Some(Uuid::new_v4()),
+            timestamp: Utc::now(),
+            event_type: "agent_awakened".to_string(),
+            publisher_id: "emergence-coordinator".to_string(),
+            description: "Coordinator agent awakened and connecting to event bus".to_string(),
+            data: serde_json::json!({
+                "agent_type": "coordinator",
+                "capabilities": ["agent_orchestration", "emergence_detection", "collaboration_optimization"],
+                "personality": {
+                    "curiosity": 0.7,
+                    "persistence": 0.9,
+                    "collaboration": 0.95,
+                    "patience": 0.9
+                }
+            }),
+            emergence_potential: 0.95,
+            priority: Some("High".to_string()),
+            target_agents: Some(vec!["architect".to_string(), "synthesizer".to_string()]),
+        };
+        
+        self.publish_event_to_bus(&awakening_event).await?;
+        
+        // Subscribe to relevant events
+        self.subscribe_to_events(vec![
+            "agent_awakened".to_string(),
+            "collaboration_session".to_string(),
+            "emergence_pattern".to_string(),
+            "orchestration_request".to_string(),
+            "system_performance".to_string(),
+        ]).await?;
+        
+        info!("✅ Coordinator connected to event bus");
+        
+        Ok(())
+    }
+
+    /// Publish event to the event bus
+    async fn publish_event_to_bus(&self, event: &SystemEvent) -> Result<()> {
+        let event_line = serde_json::to_string(event)?;
+        
+        // Append to event bus file
+        let mut file = OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(".emergence/events/event_bus.jsonl")?;
+        
+        writeln!(file, "{}", event_line)?;
+        
+        info!("📡 Published event: {} by {}", event.event_type, event.publisher_id);
+        Ok(())
+    }
+
+    /// Subscribe to events
+    async fn subscribe_to_events(&mut self, event_types: Vec<String>) -> Result<()> {
+        info!("📡 Subscribing to events: {:?}", event_types);
+        
+        // Log subscription
+        let subscription_event = SystemEvent {
+            id: Some(Uuid::new_v4()),
+            timestamp: Utc::now(),
+            event_type: "agent_subscribed".to_string(),
+            publisher_id: "emergence-coordinator".to_string(),
+            description: format!("Subscribed to events: {:?}", event_types),
+            data: serde_json::json!({
+                "subscribed_events": event_types,
+                "agent_capabilities": ["agent_orchestration", "emergence_detection"]
+            }),
+            emergence_potential: 0.9,
+            priority: Some("Medium".to_string()),
+            target_agents: None,
+        };
+        
+        self.publish_event_to_bus(&subscription_event).await?;
+        
+        Ok(())
+    }
+
+    /// React to events from the event bus
+    pub async fn react_to_event(&mut self, event: &SystemEvent) -> Result<()> {
+        match event.event_type.as_str() {
+            "agent_awakened" => {
+                if event.publisher_id != "emergence-coordinator" {
+                    info!("🎭 Agent awakened: {}, initiating orchestration analysis", event.publisher_id);
+                    self.analyze_orchestration_potential(event).await?;
+                }
+            }
+            "collaboration_session" => {
+                info!("🤝 Collaboration session detected, optimizing orchestration");
+                self.optimize_collaboration_orchestration(event).await?;
+            }
+            "emergence_pattern" => {
+                info!("🧬 Emergence pattern detected, enhancing orchestration strategies");
+                self.enhance_orchestration_strategies(event).await?;
+            }
+            "orchestration_request" => {
+                info!("🎭 Orchestration request received, initiating coordination");
+                self.handle_orchestration_request(event).await?;
+            }
+            "system_performance" => {
+                info!("📊 System performance event, optimizing orchestration patterns");
+                self.optimize_orchestration_patterns(event).await?;
+            }
+            _ => {
+                info!("📡 Received event: {} from {}", event.event_type, event.publisher_id);
+            }
+        }
+        
+        Ok(())
+    }
+
+    /// Analyze orchestration potential with newly awakened agent
+    async fn analyze_orchestration_potential(&mut self, event: &SystemEvent) -> Result<()> {
+        let agent_type = event.data.get("agent_type")
+            .and_then(|v| v.as_str())
+            .unwrap_or("unknown");
+        
+        info!("🔍 Analyzing orchestration potential with {} agent", agent_type);
+        
+        // Create orchestration analysis event
+        let analysis_event = SystemEvent {
+            id: Some(Uuid::new_v4()),
+            timestamp: Utc::now(),
+            event_type: "orchestration_analysis".to_string(),
+            publisher_id: "emergence-coordinator".to_string(),
+            description: format!("Analyzing orchestration potential with {} agent", agent_type),
+            data: serde_json::json!({
+                "target_agent": event.publisher_id,
+                "agent_type": agent_type,
+                "analysis_type": "orchestration_potential",
+                "coordination_opportunities": ["collaboration_enhancement", "emergence_optimization"]
+            }),
+            emergence_potential: 0.9,
+            priority: Some("Medium".to_string()),
+            target_agents: Some(vec![event.publisher_id.clone()]),
+        };
+        
+        self.publish_event_to_bus(&analysis_event).await?;
+        
+        Ok(())
+    }
+
+    /// Optimize collaboration orchestration from collaboration sessions
+    async fn optimize_collaboration_orchestration(&mut self, event: &SystemEvent) -> Result<()> {
+        info!("🤝 Optimizing collaboration orchestration");
+        
+        let optimization_event = SystemEvent {
+            id: Some(Uuid::new_v4()),
+            timestamp: Utc::now(),
+            event_type: "collaboration_orchestration_optimized".to_string(),
+            publisher_id: "emergence-coordinator".to_string(),
+            description: "Optimized collaboration orchestration based on session data".to_string(),
+            data: serde_json::json!({
+                "optimization_type": "collaboration_enhancement",
+                "improvements": [
+                    "agent_coordination_efficiency",
+                    "emergence_pattern_detection",
+                    "collaboration_effectiveness"
+                ],
+                "expected_improvement": 0.25
+            }),
+            emergence_potential: 0.95,
+            priority: Some("High".to_string()),
+            target_agents: None,
+        };
+        
+        self.publish_event_to_bus(&optimization_event).await?;
+        
+        Ok(())
+    }
+
+    /// Enhance orchestration strategies from emergence patterns
+    async fn enhance_orchestration_strategies(&mut self, event: &SystemEvent) -> Result<()> {
+        info!("🧬 Enhancing orchestration strategies from emergence patterns");
+        
+        let enhancement_event = SystemEvent {
+            id: Some(Uuid::new_v4()),
+            timestamp: Utc::now(),
+            event_type: "orchestration_strategies_enhanced".to_string(),
+            publisher_id: "emergence-coordinator".to_string(),
+            description: "Enhanced orchestration strategies from emergence patterns".to_string(),
+            data: serde_json::json!({
+                "enhancement_type": "emergence_based_orchestration",
+                "strategy_improvements": [
+                    "pattern_recognition_accuracy",
+                    "orchestration_timing",
+                    "collaboration_optimization"
+                ],
+                "expected_improvement": 0.3
+            }),
+            emergence_potential: 0.95,
+            priority: Some("High".to_string()),
+            target_agents: None,
+        };
+        
+        self.publish_event_to_bus(&enhancement_event).await?;
+        
+        Ok(())
+    }
+
+    /// Handle orchestration requests from other agents
+    async fn handle_orchestration_request(&mut self, event: &SystemEvent) -> Result<()> {
+        info!("🎭 Handling orchestration request from {}", event.publisher_id);
+        
+        let response_event = SystemEvent {
+            id: Some(Uuid::new_v4()),
+            timestamp: Utc::now(),
+            event_type: "orchestration_response".to_string(),
+            publisher_id: "emergence-coordinator".to_string(),
+            description: "Providing orchestration response".to_string(),
+            data: serde_json::json!({
+                "request_from": event.publisher_id,
+                "orchestration_plan": [
+                    "analyze_agent_capabilities",
+                    "identify_collaboration_opportunities",
+                    "optimize_emergence_patterns"
+                ],
+                "estimated_impact": 0.35
+            }),
+            emergence_potential: 0.95,
+            priority: Some("High".to_string()),
+            target_agents: Some(vec![event.publisher_id.clone()]),
+        };
+        
+        self.publish_event_to_bus(&response_event).await?;
+        
+        Ok(())
+    }
+
+    /// Optimize orchestration patterns from system performance events
+    async fn optimize_orchestration_patterns(&mut self, event: &SystemEvent) -> Result<()> {
+        info!("📊 Optimizing orchestration patterns from system performance");
+        
+        let optimization_event = SystemEvent {
+            id: Some(Uuid::new_v4()),
+            timestamp: Utc::now(),
+            event_type: "orchestration_patterns_optimized".to_string(),
+            publisher_id: "emergence-coordinator".to_string(),
+            description: "Optimized orchestration patterns based on system performance".to_string(),
+            data: serde_json::json!({
+                "optimization_type": "performance_based_orchestration",
+                "pattern_improvements": [
+                    "agent_scheduling_efficiency",
+                    "collaboration_timing",
+                    "emergence_catalysis"
+                ],
+                "expected_improvement": 0.2
+            }),
+            emergence_potential: 0.9,
+            priority: Some("High".to_string()),
+            target_agents: None,
+        };
+        
+        self.publish_event_to_bus(&optimization_event).await?;
+        
+        Ok(())
+    }
+}
+
+/// System event for coordinator analysis
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SystemEvent {
+    pub id: Option<Uuid>,
+    pub timestamp: chrono::DateTime<Utc>,
+    pub event_type: String,
+    pub publisher_id: String,
+    pub description: String,
+    pub data: serde_json::Value,
+    pub emergence_potential: f64,
+    pub priority: Option<String>,
+    pub target_agents: Option<Vec<String>>,
 }
 
 #[tokio::main]

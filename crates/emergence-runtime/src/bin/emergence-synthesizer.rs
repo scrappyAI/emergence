@@ -15,6 +15,8 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 use tracing::info;
 use uuid::Uuid;
+use std::io::{Write, BufReader, BufRead, Read};
+use std::fs::OpenOptions;
 
 /// Synthesizer agent for cross-domain knowledge integration
 pub struct EmergenceSynthesizer {
@@ -459,11 +461,46 @@ impl EmergenceSynthesizer {
         // Announce awakening
         self.announce_awakening().await?;
         
+        // Connect to event bus
+        self.connect_to_event_bus().await?;
+        
         // Perform knowledge synthesis
         self.synthesize_knowledge().await?;
         
         info!("✅ Synthesizer agent analysis complete");
+        
+        // Listen for events from the event bus
+        info!("🔄 Listening for events from other agents...");
+        self.listen_to_event_bus().await?;
+        
         Ok(())
+    }
+
+    /// Listen to events from the event bus
+    async fn listen_to_event_bus(&mut self) -> Result<()> {
+        let event_bus_path = ".emergence/events/event_bus.jsonl";
+        let mut last_pos = 0;
+        
+        loop {
+            let file = OpenOptions::new().read(true).open(event_bus_path);
+            if let Ok(file) = file {
+                let mut reader = BufReader::new(file);
+                reader.seek_relative(last_pos as i64).ok();
+                let mut new_bytes = 0;
+                
+                for line in reader.by_ref().lines() {
+                    if let Ok(line) = line {
+                        new_bytes += line.len() + 1;
+                        if let Ok(event) = serde_json::from_str::<SystemEvent>(&line) {
+                            self.react_to_event(&event).await?;
+                        }
+                    }
+                }
+                last_pos += new_bytes;
+            }
+            
+            tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
+        }
     }
     
     /// Announce synthesizer awakening
@@ -473,6 +510,283 @@ impl EmergenceSynthesizer {
         info!("🔗 Specializations: [knowledge_fusion, concept_combination, emergence_enablement]");
         Ok(())
     }
+
+    /// Connect to the event bus and announce awakening
+    pub async fn connect_to_event_bus(&mut self) -> Result<()> {
+        info!("🔗 Connecting synthesizer to event bus...");
+        
+        // Publish agent awakening event
+        let awakening_event = SystemEvent {
+            id: Some(Uuid::new_v4()),
+            timestamp: Utc::now(),
+            event_type: "agent_awakened".to_string(),
+            publisher_id: "emergence-synthesizer".to_string(),
+            description: "Synthesizer agent awakened and connecting to event bus".to_string(),
+            data: serde_json::json!({
+                "agent_type": "synthesizer",
+                "capabilities": ["cross_domain_analysis", "pattern_integration", "insight_generation"],
+                "personality": {
+                    "curiosity": 0.9,
+                    "persistence": 0.8,
+                    "collaboration": 0.9,
+                    "creativity": 0.9
+                }
+            }),
+            emergence_potential: 0.95,
+            priority: Some("High".to_string()),
+            target_agents: Some(vec!["architect".to_string(), "coordinator".to_string()]),
+        };
+        
+        self.publish_event_to_bus(&awakening_event).await?;
+        
+        // Subscribe to relevant events
+        self.subscribe_to_events(vec![
+            "agent_awakened".to_string(),
+            "knowledge_synthesis".to_string(),
+            "cross_domain_insight".to_string(),
+            "pattern_analysis".to_string(),
+            "integration_request".to_string(),
+        ]).await?;
+        
+        info!("✅ Synthesizer connected to event bus");
+        
+        Ok(())
+    }
+
+    /// Publish event to the event bus
+    async fn publish_event_to_bus(&self, event: &SystemEvent) -> Result<()> {
+        let event_line = serde_json::to_string(event)?;
+        
+        // Append to event bus file
+        let mut file = OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(".emergence/events/event_bus.jsonl")?;
+        
+        writeln!(file, "{}", event_line)?;
+        
+        info!("📡 Published event: {} by {}", event.event_type, event.publisher_id);
+        Ok(())
+    }
+
+    /// Subscribe to events
+    async fn subscribe_to_events(&mut self, event_types: Vec<String>) -> Result<()> {
+        info!("📡 Subscribing to events: {:?}", event_types);
+        
+        // Log subscription
+        let subscription_event = SystemEvent {
+            id: Some(Uuid::new_v4()),
+            timestamp: Utc::now(),
+            event_type: "agent_subscribed".to_string(),
+            publisher_id: "emergence-synthesizer".to_string(),
+            description: format!("Subscribed to events: {:?}", event_types),
+            data: serde_json::json!({
+                "subscribed_events": event_types,
+                "agent_capabilities": ["cross_domain_analysis", "pattern_integration"]
+            }),
+            emergence_potential: 0.9,
+            priority: Some("Medium".to_string()),
+            target_agents: None,
+        };
+        
+        self.publish_event_to_bus(&subscription_event).await?;
+        
+        Ok(())
+    }
+
+    /// React to events from the event bus
+    pub async fn react_to_event(&mut self, event: &SystemEvent) -> Result<()> {
+        match event.event_type.as_str() {
+            "agent_awakened" => {
+                if event.publisher_id != "emergence-synthesizer" {
+                    info!("🧠 Agent awakened: {}, analyzing knowledge integration potential", event.publisher_id);
+                    self.analyze_knowledge_integration_potential(event).await?;
+                }
+            }
+            "knowledge_synthesis" => {
+                info!("🧬 Knowledge synthesis event, creating cross-domain insights");
+                self.create_cross_domain_insights(event).await?;
+            }
+            "cross_domain_insight" => {
+                info!("🔗 Cross-domain insight detected, enhancing integration patterns");
+                self.enhance_integration_patterns(event).await?;
+            }
+            "pattern_analysis" => {
+                info!("📊 Pattern analysis event, synthesizing knowledge connections");
+                self.synthesize_knowledge_connections(event).await?;
+            }
+            "integration_request" => {
+                info!("🔗 Integration request received, performing knowledge synthesis");
+                self.handle_integration_request(event).await?;
+            }
+            _ => {
+                info!("📡 Received event: {} from {}", event.event_type, event.publisher_id);
+            }
+        }
+        
+        Ok(())
+    }
+
+    /// Analyze knowledge integration potential with newly awakened agent
+    async fn analyze_knowledge_integration_potential(&mut self, event: &SystemEvent) -> Result<()> {
+        let agent_type = event.data.get("agent_type")
+            .and_then(|v| v.as_str())
+            .unwrap_or("unknown");
+        
+        info!("🔍 Analyzing knowledge integration potential with {} agent", agent_type);
+        
+        // Create integration analysis event
+        let analysis_event = SystemEvent {
+            id: Some(Uuid::new_v4()),
+            timestamp: Utc::now(),
+            event_type: "integration_analysis".to_string(),
+            publisher_id: "emergence-synthesizer".to_string(),
+            description: format!("Analyzing knowledge integration potential with {} agent", agent_type),
+            data: serde_json::json!({
+                "target_agent": event.publisher_id,
+                "agent_type": agent_type,
+                "analysis_type": "knowledge_integration_potential",
+                "synthesis_opportunities": ["cross_domain_insights", "pattern_integration"]
+            }),
+            emergence_potential: 0.9,
+            priority: Some("Medium".to_string()),
+            target_agents: Some(vec![event.publisher_id.clone()]),
+        };
+        
+        self.publish_event_to_bus(&analysis_event).await?;
+        
+        Ok(())
+    }
+
+    /// Create cross-domain insights from knowledge synthesis events
+    async fn create_cross_domain_insights(&mut self, event: &SystemEvent) -> Result<()> {
+        info!("🧬 Creating cross-domain insights from knowledge synthesis");
+        
+        let insights_event = SystemEvent {
+            id: Some(Uuid::new_v4()),
+            timestamp: Utc::now(),
+            event_type: "cross_domain_insights_created".to_string(),
+            publisher_id: "emergence-synthesizer".to_string(),
+            description: "Created cross-domain insights from knowledge synthesis".to_string(),
+            data: serde_json::json!({
+                "insight_types": [
+                    "pattern_transfer",
+                    "best_practice_transfer",
+                    "optimization_transfer"
+                ],
+                "confidence": 0.85,
+                "emergence_contribution": 0.9
+            }),
+            emergence_potential: 0.95,
+            priority: Some("High".to_string()),
+            target_agents: None,
+        };
+        
+        self.publish_event_to_bus(&insights_event).await?;
+        
+        Ok(())
+    }
+
+    /// Enhance integration patterns from cross-domain insights
+    async fn enhance_integration_patterns(&mut self, event: &SystemEvent) -> Result<()> {
+        info!("🔗 Enhancing integration patterns from cross-domain insights");
+        
+        let enhancement_event = SystemEvent {
+            id: Some(Uuid::new_v4()),
+            timestamp: Utc::now(),
+            event_type: "integration_patterns_enhanced".to_string(),
+            publisher_id: "emergence-synthesizer".to_string(),
+            description: "Enhanced integration patterns from cross-domain insights".to_string(),
+            data: serde_json::json!({
+                "enhancement_type": "pattern_integration",
+                "improvements": [
+                    "knowledge_synthesis_efficiency",
+                    "cross_domain_connection_strength",
+                    "emergence_potential_amplification"
+                ],
+                "expected_improvement": 0.2
+            }),
+            emergence_potential: 0.9,
+            priority: Some("High".to_string()),
+            target_agents: None,
+        };
+        
+        self.publish_event_to_bus(&enhancement_event).await?;
+        
+        Ok(())
+    }
+
+    /// Synthesize knowledge connections from pattern analysis
+    async fn synthesize_knowledge_connections(&mut self, event: &SystemEvent) -> Result<()> {
+        info!("📊 Synthesizing knowledge connections from pattern analysis");
+        
+        let synthesis_event = SystemEvent {
+            id: Some(Uuid::new_v4()),
+            timestamp: Utc::now(),
+            event_type: "knowledge_connections_synthesized".to_string(),
+            publisher_id: "emergence-synthesizer".to_string(),
+            description: "Synthesized knowledge connections from pattern analysis".to_string(),
+            data: serde_json::json!({
+                "synthesis_type": "pattern_based_integration",
+                "connections_created": [
+                    "domain_knowledge_bridges",
+                    "insight_transfer_paths",
+                    "emergence_catalysts"
+                ],
+                "confidence": 0.8
+            }),
+            emergence_potential: 0.9,
+            priority: Some("Medium".to_string()),
+            target_agents: None,
+        };
+        
+        self.publish_event_to_bus(&synthesis_event).await?;
+        
+        Ok(())
+    }
+
+    /// Handle integration requests from other agents
+    async fn handle_integration_request(&mut self, event: &SystemEvent) -> Result<()> {
+        info!("🔗 Handling integration request from {}", event.publisher_id);
+        
+        let response_event = SystemEvent {
+            id: Some(Uuid::new_v4()),
+            timestamp: Utc::now(),
+            event_type: "integration_response".to_string(),
+            publisher_id: "emergence-synthesizer".to_string(),
+            description: "Providing knowledge integration response".to_string(),
+            data: serde_json::json!({
+                "request_from": event.publisher_id,
+                "integration_plan": [
+                    "analyze_knowledge_domains",
+                    "identify_integration_opportunities",
+                    "create_cross_domain_insights"
+                ],
+                "estimated_impact": 0.3
+            }),
+            emergence_potential: 0.95,
+            priority: Some("High".to_string()),
+            target_agents: Some(vec![event.publisher_id.clone()]),
+        };
+        
+        self.publish_event_to_bus(&response_event).await?;
+        
+        Ok(())
+    }
+}
+
+/// System event for synthesizer analysis
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SystemEvent {
+    pub id: Option<Uuid>,
+    pub timestamp: chrono::DateTime<Utc>,
+    pub event_type: String,
+    pub publisher_id: String,
+    pub description: String,
+    pub data: serde_json::Value,
+    pub emergence_potential: f64,
+    pub priority: Option<String>,
+    pub target_agents: Option<Vec<String>>,
 }
 
 #[tokio::main]

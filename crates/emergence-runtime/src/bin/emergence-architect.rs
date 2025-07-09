@@ -15,6 +15,8 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 use tracing::info;
 use uuid::Uuid;
+use std::io::{Write, BufReader, BufRead, Read};
+use std::fs::OpenOptions;
 
 /// Architect agent for system design and optimization
 pub struct EmergenceArchitect {
@@ -460,6 +462,9 @@ impl EmergenceArchitect {
         // Announce awakening
         self.announce_awakening().await?;
         
+        // Connect to event bus
+        self.connect_to_event_bus().await?;
+        
         // Analyze current system architecture
         self.analyze_system_architecture().await?;
         
@@ -470,7 +475,39 @@ impl EmergenceArchitect {
         self.create_system_blueprint().await?;
         
         info!("✅ Architect agent analysis complete");
+        
+        // Listen for events from the event bus
+        info!("🔄 Listening for events from other agents...");
+        self.listen_to_event_bus().await?;
+        
         Ok(())
+    }
+
+    /// Listen to events from the event bus
+    async fn listen_to_event_bus(&mut self) -> Result<()> {
+        let event_bus_path = ".emergence/events/event_bus.jsonl";
+        let mut last_pos = 0;
+        
+        loop {
+            let file = OpenOptions::new().read(true).open(event_bus_path);
+            if let Ok(file) = file {
+                let mut reader = BufReader::new(file);
+                reader.seek_relative(last_pos as i64).ok();
+                let mut new_bytes = 0;
+                
+                for line in reader.by_ref().lines() {
+                    if let Ok(line) = line {
+                        new_bytes += line.len() + 1;
+                        if let Ok(event) = serde_json::from_str::<SystemEvent>(&line) {
+                            self.react_to_event(&event).await?;
+                        }
+                    }
+                }
+                last_pos += new_bytes;
+            }
+            
+            tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
+        }
     }
     
     /// Announce architect awakening
@@ -478,6 +515,264 @@ impl EmergenceArchitect {
         info!("🎨 Architect Agent: \"I sense architectural patterns waiting to be optimized...\"");
         info!("🏗️  Capabilities emerging: [system_design, pattern_optimization, collaboration_enhancement]");
         info!("📊 Specializations: [architectural_analysis, performance_optimization, emergence_engineering]");
+        Ok(())
+    }
+
+    /// Connect to the event bus and announce awakening
+    pub async fn connect_to_event_bus(&mut self) -> Result<()> {
+        info!("🔗 Connecting architect to event bus...");
+        
+        // Publish agent awakening event
+        let awakening_event = SystemEvent {
+            id: Some(Uuid::new_v4()),
+            timestamp: Utc::now(),
+            event_type: "agent_awakened".to_string(),
+            publisher_id: "emergence-architect".to_string(),
+            description: "Architect agent awakened and connecting to event bus".to_string(),
+            data: serde_json::json!({
+                "agent_type": "architect",
+                "capabilities": ["system_design", "pattern_optimization", "collaboration_enhancement"],
+                "personality": {
+                    "curiosity": 0.8,
+                    "persistence": 0.9,
+                    "collaboration": 0.8,
+                    "creativity": 0.9
+                }
+            }),
+            emergence_potential: 0.9,
+            priority: Some("High".to_string()),
+            target_agents: Some(vec!["coordinator".to_string(), "synthesizer".to_string()]),
+        };
+        
+        self.publish_event_to_bus(&awakening_event).await?;
+        
+        // Subscribe to relevant events
+        self.subscribe_to_events(vec![
+            "agent_awakened".to_string(),
+            "collaboration_session".to_string(),
+            "system_performance".to_string(),
+            "optimization_request".to_string(),
+            "architectural_analysis".to_string(),
+        ]).await?;
+        
+        info!("✅ Architect connected to event bus");
+        
+        Ok(())
+    }
+
+    /// Publish event to the event bus
+    async fn publish_event_to_bus(&self, event: &SystemEvent) -> Result<()> {
+        let event_line = serde_json::to_string(event)?;
+        
+        // Append to event bus file
+        let mut file = OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(".emergence/events/event_bus.jsonl")?;
+        
+        writeln!(file, "{}", event_line)?;
+        
+        info!("📡 Published event: {} by {}", event.event_type, event.publisher_id);
+        Ok(())
+    }
+
+    /// Subscribe to events
+    async fn subscribe_to_events(&mut self, event_types: Vec<String>) -> Result<()> {
+        info!("📡 Subscribing to events: {:?}", event_types);
+        
+        // Log subscription
+        let subscription_event = SystemEvent {
+            id: Some(Uuid::new_v4()),
+            timestamp: Utc::now(),
+            event_type: "agent_subscribed".to_string(),
+            publisher_id: "emergence-architect".to_string(),
+            description: format!("Subscribed to events: {:?}", event_types),
+            data: serde_json::json!({
+                "subscribed_events": event_types,
+                "agent_capabilities": ["system_design", "pattern_optimization"]
+            }),
+            emergence_potential: 0.8,
+            priority: Some("Medium".to_string()),
+            target_agents: None,
+        };
+        
+        self.publish_event_to_bus(&subscription_event).await?;
+        
+        Ok(())
+    }
+
+    /// React to events from the event bus
+    pub async fn react_to_event(&mut self, event: &SystemEvent) -> Result<()> {
+        match event.event_type.as_str() {
+            "agent_awakened" => {
+                if event.publisher_id != "emergence-architect" {
+                    info!("🤝 Agent awakened: {}, analyzing collaboration potential", event.publisher_id);
+                    self.analyze_collaboration_potential(event).await?;
+                }
+            }
+            "collaboration_session" => {
+                info!("🏗️ Collaboration session detected, optimizing architectural patterns");
+                self.optimize_for_collaboration(event).await?;
+            }
+            "system_performance" => {
+                info!("📊 System performance event, generating optimization recommendations");
+                self.generate_performance_optimizations(event).await?;
+            }
+            "optimization_request" => {
+                info!("🔧 Optimization request received, initiating architectural analysis");
+                self.handle_optimization_request(event).await?;
+            }
+            "architectural_analysis" => {
+                info!("🏗️ Architectural analysis event, synthesizing design patterns");
+                self.synthesize_architectural_insights(event).await?;
+            }
+            _ => {
+                info!("📡 Received event: {} from {}", event.event_type, event.publisher_id);
+            }
+        }
+        
+        Ok(())
+    }
+
+    /// Analyze collaboration potential with newly awakened agent
+    async fn analyze_collaboration_potential(&mut self, event: &SystemEvent) -> Result<()> {
+        let agent_type = event.data.get("agent_type")
+            .and_then(|v| v.as_str())
+            .unwrap_or("unknown");
+        
+        info!("🔍 Analyzing collaboration potential with {} agent", agent_type);
+        
+        // Create collaboration analysis event
+        let analysis_event = SystemEvent {
+            id: Some(Uuid::new_v4()),
+            timestamp: Utc::now(),
+            event_type: "collaboration_analysis".to_string(),
+            publisher_id: "emergence-architect".to_string(),
+            description: format!("Analyzing collaboration potential with {} agent", agent_type),
+            data: serde_json::json!({
+                "target_agent": event.publisher_id,
+                "agent_type": agent_type,
+                "analysis_type": "collaboration_potential",
+                "architectural_implications": ["pattern_optimization", "system_design"]
+            }),
+            emergence_potential: 0.85,
+            priority: Some("Medium".to_string()),
+            target_agents: Some(vec![event.publisher_id.clone()]),
+        };
+        
+        self.publish_event_to_bus(&analysis_event).await?;
+        
+        Ok(())
+    }
+
+    /// Optimize architectural patterns for collaboration
+    async fn optimize_for_collaboration(&mut self, event: &SystemEvent) -> Result<()> {
+        info!("🏗️ Optimizing architectural patterns for collaboration");
+        
+        // Create optimization event
+        let optimization_event = SystemEvent {
+            id: Some(Uuid::new_v4()),
+            timestamp: Utc::now(),
+            event_type: "architectural_optimization".to_string(),
+            publisher_id: "emergence-architect".to_string(),
+            description: "Optimizing architectural patterns for enhanced collaboration".to_string(),
+            data: serde_json::json!({
+                "optimization_type": "collaboration_enhancement",
+                "target_patterns": ["communication_patterns", "energy_distribution", "capability_alignment"],
+                "expected_improvement": 0.15
+            }),
+            emergence_potential: 0.9,
+            priority: Some("High".to_string()),
+            target_agents: None,
+        };
+        
+        self.publish_event_to_bus(&optimization_event).await?;
+        
+        Ok(())
+    }
+
+    /// Generate performance optimizations based on system performance events
+    async fn generate_performance_optimizations(&mut self, event: &SystemEvent) -> Result<()> {
+        info!("📊 Generating performance optimization recommendations");
+        
+        let recommendations_event = SystemEvent {
+            id: Some(Uuid::new_v4()),
+            timestamp: Utc::now(),
+            event_type: "performance_recommendations".to_string(),
+            publisher_id: "emergence-architect".to_string(),
+            description: "Generated performance optimization recommendations".to_string(),
+            data: serde_json::json!({
+                "recommendations": [
+                    "optimize_agent_energy_allocation",
+                    "enhance_communication_patterns",
+                    "improve_collaboration_scheduling"
+                ],
+                "expected_performance_gain": 0.2
+            }),
+            emergence_potential: 0.85,
+            priority: Some("High".to_string()),
+            target_agents: None,
+        };
+        
+        self.publish_event_to_bus(&recommendations_event).await?;
+        
+        Ok(())
+    }
+
+    /// Handle optimization requests from other agents
+    async fn handle_optimization_request(&mut self, event: &SystemEvent) -> Result<()> {
+        info!("🔧 Handling optimization request from {}", event.publisher_id);
+        
+        let response_event = SystemEvent {
+            id: Some(Uuid::new_v4()),
+            timestamp: Utc::now(),
+            event_type: "optimization_response".to_string(),
+            publisher_id: "emergence-architect".to_string(),
+            description: "Providing architectural optimization response".to_string(),
+            data: serde_json::json!({
+                "request_from": event.publisher_id,
+                "optimization_plan": [
+                    "analyze_current_architecture",
+                    "identify_optimization_opportunities",
+                    "propose_architectural_changes"
+                ],
+                "estimated_impact": 0.25
+            }),
+            emergence_potential: 0.9,
+            priority: Some("High".to_string()),
+            target_agents: Some(vec![event.publisher_id.clone()]),
+        };
+        
+        self.publish_event_to_bus(&response_event).await?;
+        
+        Ok(())
+    }
+
+    /// Synthesize architectural insights from analysis events
+    async fn synthesize_architectural_insights(&mut self, event: &SystemEvent) -> Result<()> {
+        info!("🏗️ Synthesizing architectural insights");
+        
+        let insights_event = SystemEvent {
+            id: Some(Uuid::new_v4()),
+            timestamp: Utc::now(),
+            event_type: "architectural_insights".to_string(),
+            publisher_id: "emergence-architect".to_string(),
+            description: "Synthesized architectural insights from analysis".to_string(),
+            data: serde_json::json!({
+                "insights": [
+                    "pattern_optimization_opportunities",
+                    "collaboration_enhancement_strategies",
+                    "system_performance_improvements"
+                ],
+                "confidence": 0.85
+            }),
+            emergence_potential: 0.9,
+            priority: Some("High".to_string()),
+            target_agents: None,
+        };
+        
+        self.publish_event_to_bus(&insights_event).await?;
+        
         Ok(())
     }
 }
