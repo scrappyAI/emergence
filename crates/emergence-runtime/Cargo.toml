@@ -36,6 +36,9 @@ tracing-subscriber = { workspace = true, features = ["env-filter"] }
 # File system monitoring
 notify = "6.1"
 
+# Async traits
+async-trait = "0.1"
+
 # Numerical computations
 ordered-float = { workspace = true }
 
@@ -62,6 +65,22 @@ path = "src/bin/researcher-analysis.rs"
 [[bin]]
 name = "performance-tester"
 path = "src/bin/performance-tester.rs"
+
+[[bin]]
+name = "enhanced-collaborative-intelligence"
+path = "src/bin/enhanced-collaborative-intelligence.rs"
+
+[[bin]]
+name = "emergence-engineering"
+path = "src/bin/emergence-engineering.rs"
+
+[[bin]]
+name = "event-reactor"
+path = "src/bin/event-reactor.rs"
+
+[[bin]]
+name = "domain-analyzer"
+path = "src/bin/domain_analyzer.rs"
 
 [[example]]
 name = "debugger-llm-tool"
