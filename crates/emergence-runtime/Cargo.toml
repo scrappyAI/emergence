@@ -55,6 +55,14 @@ path = "src/bin/autonomous-debugger.rs"
 name = "collaborative-intelligence"
 path = "src/bin/collaborative-intelligence.rs"
 
+[[bin]]
+name = "researcher-analysis"
+path = "src/bin/researcher-analysis.rs"
+
+[[bin]]
+name = "performance-tester"
+path = "src/bin/performance-tester.rs"
+
 [[example]]
 name = "debugger-llm-tool"
 path = "examples/debugger-llm-tool.rs"
